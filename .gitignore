@@ -1,0 +1,6 @@
+venv
+logs
+output
+__pycache__
+cars.csv
+mongo
