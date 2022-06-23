@@ -1,7 +1,7 @@
-venv
-logs
-output
 __pycache__
-cars.csv
-mongo
-postgres
+venv
+logs/*
+output/*
+mongo/*
+postgres/*
+pythonCron/*
