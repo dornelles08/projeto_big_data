@@ -62,11 +62,11 @@ def coletaLinks(lista, uf):
             totalLinks.append(f)
         sleep(1)
 
-    print(f"Total de links a coletados {uf}: {len(totalLinks)}")
+    # print(f"Total de links a coletados {uf}: {len(totalLinks)}")
 
     fim = time()
 
-    print(f"Tempo para coletar os links {round(fim-inicio, 2)} s")
+    # print(f"Tempo para coletar os links {round(fim-inicio, 2)} s")
 
     if(len(totalLinks) > 0):
         insert_many(totalLinks, 'links')
@@ -105,6 +105,8 @@ def main():
            "to"]
 
     for uf in ufs:
+        print(f"Inicio {uf.upper()}")
+        inicioTimer = time()
         threads = []
         inicio = 1
         fim = 10
@@ -119,6 +121,11 @@ def main():
 
         for thread in threads:
             thread.join()
+
+        fimTimer = time()
+
+        print(
+            f"Fim {uf.upper()} -> {round(fimTimer-inicioTimer, 2)} s")
 
     print(ctime())
 
