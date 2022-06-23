@@ -1,5 +1,5 @@
 import pandas as pd
-from mongo import getCars, getClient
+from mongo import getCars, getClient, updateCarsMany
 from time import ctime, sleep
 import schedule
 import cronitor
@@ -13,10 +13,52 @@ cronitor.Monitor.put(
 )
 
 
+def updateCar(cars):
+    links = []
+    for car in cars:
+        links.append(car['link'])
+
+    inicio = 1
+    fim = 10000
+    for i in range(int(len(links)/10000)+1):
+        linksToUpdate = links[inicio-1:fim]
+
+        inicio = fim+1
+        fim = fim+10000
+        updateCarsMany(linksToUpdate, {'processed': True})
+        sleep(5)
+
+
+def removeOutliers(dataset, field):
+    series = dataset.groupby('Modelo')[field]
+    q1 = series.quantile(.25)
+    q3 = series.quantile(.75)
+    IIQ = q3 - q1
+    limite_inferior = q1 - 1.5 * IIQ
+    limite_superior = q3 + 1.5 * IIQ
+
+    series_new = pd.DataFrame()
+
+    for tipo in series.groups.keys():
+        eh_tipo = dataset['Modelo'] == tipo
+        eh_dentro_limite = (dataset[field] >= limite_inferior[tipo]) & (
+            dataset[field] <= limite_superior[tipo])
+        selecao = eh_tipo & eh_dentro_limite
+        dados_selecao = dataset[selecao]
+        series_new = pd.concat([series_new, dados_selecao])
+
+    return series_new
+
+
 @cronitor.job('data-processing-job')
 def main():
     print(ctime())
-    cars = list(getCars({'processed': False}))
+    cars = list(getCars())
+    print(len(cars))
+    if(len(cars) == 0):
+        print(f"{ctime()} - Nenhum carro a processar")
+        return
+
     for i in range(len(cars)):
         if(not isinstance(cars[i]['price'], float)):
             cars[i].update({'price': float(cars[i]['price'].replace('.', ''))})
@@ -29,53 +71,23 @@ def main():
     dataset.drop(columns=['_id', 'link', 'Categoria'], inplace=True)
     dataset.dropna(inplace=True)
 
-    price = dataset.groupby('Modelo')['price']
-    q1 = price.quantile(.25)
-    q3 = price.quantile(.75)
-    IIQ = q3 - q1
-    limite_inferior = q1 - 1.5 * IIQ
-    limite_superior = q3 + 1.5 * IIQ
-
-    price_new = pd.DataFrame()
-
-    for tipo in price.groups.keys():
-        eh_tipo = dataset['Modelo'] == tipo
-        eh_dentro_limite = (dataset['price'] >= limite_inferior[tipo]) & (
-            dataset['price'] <= limite_superior[tipo])
-        selecao = eh_tipo & eh_dentro_limite
-        dados_selecao = dataset[selecao]
-        price_new = pd.concat([price_new, dados_selecao])
-
-    quilometragem = price_new.groupby('Modelo')['Quilometragem']
-    q1 = quilometragem.quantile(.25)
-    q3 = quilometragem.quantile(.75)
-    IIQ = q3 - q1
-    limite_inferior = q1 - 1.5 * IIQ
-    limite_superior = q3 + 1.5 * IIQ
-
-    quilometragem_new = pd.DataFrame()
-
-    for tipo in quilometragem.groups.keys():
-        eh_tipo = price_new['Modelo'] == tipo
-        eh_dentro_limite = (price_new['Quilometragem'] >= limite_inferior[tipo]) & (
-            price_new['Quilometragem'] <= limite_superior[tipo])
-        selecao = eh_tipo & eh_dentro_limite
-        dados_selecao = price_new[selecao]
-        quilometragem_new = pd.concat([quilometragem_new, dados_selecao])
-
-    dataset = quilometragem_new.copy()
+    dataset = removeOutliers(dataset, 'price')
+    dataset = removeOutliers(dataset, 'Quilometragem')
 
     dataset.to_csv("output/dataset.csv", index=False)
-    dataset.to_sql("cars", cnx, if_exists="replace")
+    dataset.to_sql("cars", cnx, if_exists="append")
+    updateCar(cars)
+
     print(ctime())
 
 
 if __name__ == "__main__":
-    getClient()
-    schedule.every().hour.do(main)
+    main()
+    # getClient()
+    # schedule.every().hour.do(main)
 
-    print(f"Inicio Cron {ctime()}")
+    # print(f"Inicio Cron {ctime()}")
 
-    while 1:
-        schedule.run_pending()
-        sleep(60)
+    # while 1:
+    #     schedule.run_pending()
+    #     sleep(60)
