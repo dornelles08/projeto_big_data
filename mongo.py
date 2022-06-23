@@ -1,9 +1,15 @@
 from pymongo import MongoClient
 
+host = "mongodb"
+
 client = MongoClient(
-    'mongodb://root:pass@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false')
+    f'mongodb://root:pass@{host}:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false')
 
 db = client.bigData
+
+
+def getClient():
+    return client
 
 
 def insert_many(array, collection):
@@ -35,3 +41,11 @@ def updateLink(link):
 
 def totalLinksNotCollected(uf):
     return db['links'].count_documents({"hasCollected": False, "uf": uf})
+
+
+def getCars(filters={}):
+    return db['cars'].find(filters)
+
+
+def getCarsByUf(uf):
+    return db['cars'].find({"uf": uf})
