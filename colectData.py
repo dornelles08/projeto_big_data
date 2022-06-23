@@ -33,7 +33,7 @@ class Th(Thread):
 
         print(f"Quantidade de Erros: {len(errors)}")
         if(len(errors) > 0):
-            insert_many(errors, 'erros')
+            insert_many(errors, 'errors')
 
         fim = time()
         print(f"Tempo para coletar os dados {round(fim-inicio, 2)} s")
