@@ -1,15 +1,21 @@
-from time import ctime, sleep
-import schedule
+from mongo import getCars, updateCarsMany
+from time import sleep
 
+cars = list(getCars())
+print(len(cars))
 
-def main():
-    print(f"Main-{ctime()}")
+links = []
 
+for car in cars:
+    links.append(car['link'])
 
-schedule.every().second.do(main)
+inicio = 1
+fim = 10000
+for i in range(int(len(links)/10000)+1):
+    linksToUpdate = links[inicio-1:fim]
+    print(len(linksToUpdate))
 
-print(f"inicio {ctime()}")
-
-while 1:
-    schedule.run_pending()
+    inicio = fim+1
+    fim = fim+10000
+    updateCarsMany(links, {'processed': False})
     sleep(1)
