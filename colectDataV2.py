@@ -7,6 +7,14 @@ import pandas as pd
 from threading import Thread
 import json
 import os
+import cronitor
+
+cronitor.api_key = '81ca7a84f7434070a14bd28df00aba61'
+cronitor.Monitor.put(
+    key='colect-data-job',
+    type='job',
+    schedule='0 * * * *',
+)
 
 
 class Th(Thread):
@@ -140,6 +148,7 @@ def coletaDados(link):
     }
 
 
+@cronitor.job('colect-data-job')
 def main():
     print(ctime())
 
@@ -178,7 +187,7 @@ def main():
         if(not os.path.exists(diretorio)):
             os.mkdir(diretorio)
 
-        num_threads = 30
+        num_threads = int(os.cpu_count()/2)
         threads = []
 
         links = getAllLinksNotCollected(uf)

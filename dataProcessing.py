@@ -2,8 +2,8 @@ import pandas as pd
 from mongo import getCars, getClient, updateCarsMany
 from time import ctime, sleep
 import schedule
-import cronitor
 from orm import cnx
+import cronitor
 
 cronitor.api_key = '81ca7a84f7434070a14bd28df00aba61'
 cronitor.Monitor.put(

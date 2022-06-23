@@ -3,6 +3,14 @@ from bs4 import BeautifulSoup
 from time import time, ctime, sleep
 from mongo import insert_many, existLink
 from threading import Thread
+import cronitor
+
+cronitor.api_key = '81ca7a84f7434070a14bd28df00aba61'
+cronitor.Monitor.put(
+    key='colect-links-job',
+    type='job',
+    schedule='0 * * * *',
+)
 
 
 class Th(Thread):
@@ -72,6 +80,7 @@ def coletaLinks(lista, uf):
         insert_many(totalLinks, 'links')
 
 
+@cronitor.job('colect-links-job')
 def main():
     print(ctime())
     pages_to_collect = list(range(1, 101))
