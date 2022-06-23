@@ -11,3 +11,20 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=pass
     restart: always
+
+  postgres:
+    image: postgres:14.1-alpine
+    ports:
+      - "15432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    restart: always
+
+  python-cron:
+    build: .
+    volumes:
+      - ./pythonCron:/app/output
+    restart: always
