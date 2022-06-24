@@ -23,8 +23,35 @@ services:
       - ./postgres:/var/lib/postgresql/data
     restart: always
 
-  python-cron:
-    build: .
+  data-processing:
+    build:
+      context: .
+      dockerfile: dataProcessing.Dockerfile
     volumes:
       - ./pythonCron:/app/output
+    env_file: docker.env
     restart: always
+
+  colect-links:
+    build:
+      context: .
+      dockerfile: colectLinks.Dockerfile
+    volumes:
+      - ./logs:/app/logs
+    env_file: docker.env
+    restart: always
+
+  colect-data:
+    build:
+      context: .
+      dockerfile: colectData.Dockerfile
+    volumes:
+      - ./logs:/app/logs
+    env_file: docker.env
+    restart: always
+
+  teste:
+    build:
+      context: .
+      dockerfile: teste.Dockerfile
+    env_file: docker.env

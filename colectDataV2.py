@@ -1,3 +1,4 @@
+from matplotlib import container
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
@@ -152,6 +153,8 @@ def coletaDados(link):
 def main():
     print(ctime())
 
+    contador = 0
+
     ufs = ["ac",
            "al",
            "ap",
@@ -182,10 +185,15 @@ def main():
 
     for uf in ufs:
         print(f"Inicio {uf.upper()}")
-        inicioTimer = time()
+
         diretorio = f'./logs/{uf}'
         if(not os.path.exists(diretorio)):
             os.mkdir(diretorio)
+
+        with open("logs/UF Atual Data.txt", "w") as file:
+            file.write(f"Inicio {uf.upper()}")
+
+        inicioTimer = time()
 
         num_threads = int(os.cpu_count()/2)
         threads = []
@@ -196,6 +204,8 @@ def main():
             for i in range(num_threads):
                 thread = Th(links[base*i:base*(i+1)], i, uf)
                 threads.append(thread)
+                contador += len(links[base*i:base*(i+1)])
+                pass
 
             for thread in threads:
                 thread.start()
@@ -208,6 +218,8 @@ def main():
         fimTimer = time()
         print(
             f"Fim {uf.upper()} -> {round(fimTimer-inicioTimer, 2)} s")
+
+    print(contador)
 
 
 if __name__ == "__main__":

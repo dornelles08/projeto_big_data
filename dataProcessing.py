@@ -53,7 +53,7 @@ def removeOutliers(dataset, field):
 @cronitor.job('data-processing-job')
 def main():
     print(ctime())
-    cars = list(getCars())
+    cars = list(getCars({"processed": False}))
     print(len(cars))
     if(len(cars) == 0):
         print(f"{ctime()} - Nenhum carro a processar")
@@ -82,12 +82,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    # getClient()
-    # schedule.every().hour.do(main)
+    getClient()
+    schedule.every().hour.do(main)
 
-    # print(f"Inicio Cron {ctime()}")
+    print(f"Inicio Cron {ctime()}")
 
-    # while 1:
-    #     schedule.run_pending()
-    #     sleep(60)
+    while 1:
+        schedule.run_pending()
+        sleep(60)

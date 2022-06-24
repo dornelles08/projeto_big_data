@@ -1,9 +1,16 @@
 from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-host = "mongodb"
+
+host = os.environ['MONGODB_HOST']
+user = os.environ['MONGODB_USER']
+password = os.environ['MONGODB_PASS']
+port = os.environ['MONGODB_PORT']
 
 client = MongoClient(
-    f'mongodb://root:pass@{host}:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false')
+    f'mongodb://{user}:{password}@{host}:{port}/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false')
 
 db = client.bigData
 
@@ -49,3 +56,8 @@ def getCars(filters={}):
 
 def getCarsByUf(uf):
     return db['cars'].find({"uf": uf})
+
+
+def updateCarsMany(links, update):
+    filter = {"link": {"$in": links}}
+    db['cars'].update_many(filter, {"$set": update})

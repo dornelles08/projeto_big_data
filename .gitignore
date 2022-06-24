@@ -5,3 +5,5 @@ output/*
 mongo/*
 postgres/*
 pythonCron/*
+.env
+docker.env

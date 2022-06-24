@@ -70,7 +70,7 @@ def coletaLinks(lista, uf):
             totalLinks.append(f)
         sleep(1)
 
-    # print(f"Total de links a coletados {uf}: {len(totalLinks)}")
+    print(f"Total de links a coletados {uf}: {len(totalLinks)}")
 
     fim = time()
 
@@ -115,6 +115,8 @@ def main():
 
     for uf in ufs:
         print(f"Inicio {uf.upper()}")
+        with open("logs/UF Atual Links.txt", "w") as file:
+            file.write(f"Inicio {uf.upper()}")
         inicioTimer = time()
         threads = []
         inicio = 1
