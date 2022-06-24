@@ -1,4 +1,3 @@
-from matplotlib import container
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
