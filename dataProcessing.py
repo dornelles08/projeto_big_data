@@ -1,5 +1,5 @@
 import pandas as pd
-from mongo import getCars, getClient, updateCarsMany
+from mongo import getCars, getClient, updateCarsMany, deleteCar
 from time import ctime, sleep
 import schedule
 from orm import cnx
@@ -54,17 +54,24 @@ def removeOutliers(dataset, field):
 def main():
     print(ctime())
     cars = list(getCars({"processed": False}))
+    toDelete = []
     print(len(cars))
     if(len(cars) == 0):
         print(f"{ctime()} - Nenhum carro a processar")
         return
 
     for i in range(len(cars)):
-        if(not isinstance(cars[i]['price'], float)):
-            cars[i].update({'price': float(cars[i]['price'].replace('.', ''))})
-        if(not isinstance(cars[i]['Quilometragem'], int)):
-            cars[i].update({'Quilometragem': int(
-                cars[i]['Quilometragem'].replace('.', ''))})
+        try:
+            if(not isinstance(cars[i]['price'], float)):
+                cars[i].update(
+                    {'price': float(cars[i]['price'].replace('.', ''))})
+            if(not isinstance(cars[i]['Quilometragem'], int)):
+                cars[i].update({'Quilometragem': int(
+                    cars[i]['Quilometragem'].replace('.', ''))})
+        except:
+            toDelete.append(cars[i]["link"])
+
+    deleteCar(toDelete)
 
     dataset = pd.DataFrame(cars)
 
@@ -82,11 +89,12 @@ def main():
 
 
 if __name__ == "__main__":
-    getClient()
-    schedule.every().hour.do(main)
+    main()
+    # getClient()
+    # schedule.every().hour.do(main)
 
-    print(f"Inicio Cron {ctime()}")
+    # print(f"Inicio Cron {ctime()}")
 
-    while 1:
-        schedule.run_pending()
-        sleep(60)
+    # while 1:
+    #     schedule.run_pending()
+    #     sleep(60)

@@ -61,3 +61,7 @@ def getCarsByUf(uf):
 def updateCarsMany(links, update):
     filter = {"link": {"$in": links}}
     db['cars'].update_many(filter, {"$set": update})
+
+
+def deleteCar(links):
+    db['cars'].delete_many({"link": {"$in": links}})
