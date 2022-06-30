@@ -81,6 +81,23 @@ def main():
     dataset = removeOutliers(dataset, 'price')
     dataset = removeOutliers(dataset, 'Quilometragem')
 
+    dataset['uf'] = "BR-"+dataset['uf'].str.upper()
+    dataset.query("Ano != '1950 ou anterior'", inplace=True)
+    dataset['Ano'] = pd.to_numeric(dataset['Ano'])
+
+    dataset['day'] = 1
+    dataset['month'] = 1
+    dataset['year'] = dataset['Ano']
+    dataset['data'] = pd.to_datetime(dataset[['year', 'day', 'month']])
+    dataset.drop(columns=['day', 'month', 'year'], inplace=True)
+
+    dataset.query("price > 10000 & price < 600000", inplace=True)
+    dataset.query(
+        "Quilometragem != 0 and (Ano != 2022 or Ano != 2023)", inplace=True)
+    dataset.query("Quilometragem < 300000", inplace=True)
+
+    dataset.drop_duplicates(inplace=True)
+
     dataset.to_csv("output/dataset.csv", index=False)
     dataset.to_sql("cars", cnx, if_exists="append")
     updateCar(cars)
