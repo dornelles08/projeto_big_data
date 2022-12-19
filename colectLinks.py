@@ -27,22 +27,12 @@ class Th(Thread):
 
 def coletaLinksPage(page, uf):
     header = {
-        'Host': f'{uf}.olx.com.br',
-        'Connection': 'close',
-        'Cache-Control': 'max-age=0',
-        'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-User': '?1',
-        'Sec-Fetch-Dest': 'document',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
     }
 
     result = requests.get(
-        f"https://{uf}.olx.com.br/autos-e-pecas/carros-vans-e-utilitarios?o="+str(page), headers=header)
+        f"https://www.olx.com.br/autos-e-pecas/carros-vans-e-utilitarios/estado-{uf}?o="+str(page), headers=header)
 
     html = result.content
     soup = BeautifulSoup(html, 'html.parser')
@@ -74,7 +64,7 @@ def coletaLinks(lista, uf):
 
     fim = time()
 
-    # print(f"Tempo para coletar os links {round(fim-inicio, 2)} s")
+    print(f"Tempo para coletar os links {round(fim-inicio, 2)} s")
 
     if(len(totalLinks) > 0):
         insert_many(totalLinks, 'links')

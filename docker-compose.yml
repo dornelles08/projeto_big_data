@@ -49,9 +49,3 @@ services:
       - ./logs:/app/logs
     env_file: docker.env
     restart: always
-
-  teste:
-    build:
-      context: .
-      dockerfile: teste.Dockerfile
-    env_file: docker.env
